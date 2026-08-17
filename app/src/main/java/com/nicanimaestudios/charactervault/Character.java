@@ -4,17 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Bundle;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class Character extends AppCompatActivity {
+public class Character extends LinearLayout {
 
     private ImageView ivPersonaje;
     private EditText etNombre, etEdad, etRaza, etSexo, etApodo, etPoderes, etPadre, etMadre, etHistoria;
@@ -22,23 +24,28 @@ public class Character extends AppCompatActivity {
 
     private Uri imageUri = null;
     private ActivityResultLauncher<String> galleryLauncher;
-
     private static final String PREFS_NAME = "FichaPersonajePrefs";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_character);
-
-        initViews();
-        setupGalleryLauncher();
-        loadData();
-
-        ivPersonaje.setOnClickListener(v -> galleryLauncher.launch("image/*"));
-        tvGuardar.setOnClickListener(v -> saveData());
+    public Character(Context context) {
+        super(context);
+        init(context);
     }
 
-    private void initViews() {
+    public Character(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    public Character(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    private void init(Context context) {
+        setOrientation(LinearLayout.VERTICAL);
+
+        LayoutInflater.from(context).inflate(R.layout.activity_character, this, true);
+
         ivPersonaje = findViewById(R.id.iv_personaje);
         etNombre = findViewById(R.id.et_nombre_personaje);
         etEdad = findViewById(R.id.at_1);
@@ -50,29 +57,43 @@ public class Character extends AppCompatActivity {
         etMadre = findViewById(R.id.at_7);
         etHistoria = findViewById(R.id.et_historia);
         tvGuardar = findViewById(R.id.tv_guardar);
+
+        setupGalleryLauncher(context);
+
+        ivPersonaje.setOnClickListener(v -> {
+            if (galleryLauncher != null) {
+                galleryLauncher.launch("image/*");
+            }
+        });
+
+        tvGuardar.setOnClickListener(v -> saveData());
+
+        loadData();
     }
 
-    private void setupGalleryLauncher() {
-        galleryLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        imageUri = uri;
-                        ivPersonaje.setImageURI(uri);
-                        // Persistir permiso de lectura de la imagen para cargas futuras
-                        try {
-                            getContentResolver().takePersistableUriPermission(
-                                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+    private void setupGalleryLauncher(Context context) {
+        if (context instanceof ComponentActivity) {
+            ComponentActivity activity = (ComponentActivity) context;
+            galleryLauncher = activity.registerForActivityResult(
+                    new ActivityResultContracts.GetContent(),
+                    uri -> {
+                        if (uri != null) {
+                            imageUri = uri;
+                            ivPersonaje.setImageURI(uri);
+                            try {
+                                context.getContentResolver().takePersistableUriPermission(
+                                        uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
-                }
-        );
+            );
+        }
     }
 
-    private void saveData() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    public void saveData() {
+        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
 
         editor.putString("nombre", etNombre.getText().toString());
@@ -90,11 +111,11 @@ public class Character extends AppCompatActivity {
         }
 
         editor.apply();
-        Toast.makeText(this, "Datos guardados correctamente", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Datos guardados", Toast.LENGTH_SHORT).show();
     }
 
-    private void loadData() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    public void loadData() {
+        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
         etNombre.setText(prefs.getString("nombre", ""));
         etEdad.setText(prefs.getString("edad", ""));
