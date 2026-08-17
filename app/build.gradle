@@ -1,0 +1,39 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+
+android {
+    namespace 'com.nicanimaestudios.charactervault'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 34
+    }
+
+    publishing {
+        singleVariant('release')
+    }
+}
+
+// Configuración requerida para que JitPack publique el AAR
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.daz-zuvr'
+                artifactId = 'charactervault'
+                version = '1.1.1'
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation libs.activity
+    implementation libs.constraintlayout
+}

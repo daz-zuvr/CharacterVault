@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/Color2"
+    tools:context=".Character">
+
+    <!-- Cabecera / Título -->
+    <TextView
+        android:id="@+id/tv_cabecera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="FICHA DE PERSONAJE"
+        android:textSize="15dp"
+        android:textColor="@color/Color2"
+        android:background="@color/Color1"
+        android:padding="10dp"
+        android:gravity="center"/>
+
+    <EditText
+        android:id="@+id/et_nombre_personaje"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre del personaje"
+        android:textSize="15dp"
+        android:textColor="@color/Color3"
+        android:textColorHint="@color/Color4"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            android:id="@+id/iv_personaje"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@color/Color3"
+            android:contentDescription="Dibujo del personaje"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="10dp"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/at_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Edad"
+                    android:textSize="15dp"
+                    android:textColor="@color/Color3"
+                    android:textColorHint="@color/Color4" />
+
+                <EditText
+                    android:id="@+id/at_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Raza"
+                    android:textSize="15dp"
+                    android:textColor="@color/Color3"
+                    android:textColorHint="@color/Color4" />
+
+                <EditText
+                    android:id="@+id/at_3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="sexo"
+                    android:textSize="15dp"
+                    android:textColor="@color/Color3"
+                    android:textColorHint="@color/Color4" />
+
+                <EditText
+                    android:id="@+id/at_4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Apodo"
+                    android:textSize="15dp"
+                    android:textColor="@color/Color3"
+                    android:textColorHint="@color/Color4" />
+
+                <EditText
+                    android:id="@+id/at_5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Poderes"
+                    android:textSize="15dp"
+                    android:textColor="@color/Color3"
+                    android:textColorHint="@color/Color4" />
+
+                <EditText
+                    android:id="@+id/at_6"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Padre"
+                    android:textSize="15dp"
+                    android:textColor="@color/Color3"
+                    android:textColorHint="@color/Color4" />
+
+                <EditText
+                    android:id="@+id/at_7"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Madre"
+                    android:textSize="15dp"
+                    android:textColor="@color/Color3"
+                    android:textColorHint="@color/Color4" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/et_historia"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:hint="Historia"
+        android:textSize="15dp"
+        android:textColor="@color/Color3"
+        android:textColorHint="@color/Color4"
+        android:gravity="top|start"
+        android:inputType="textMultiLine"
+        android:overScrollMode="always"
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical"/>
+
+    <TextView
+        android:id="@+id/tv_guardar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Guardar"
+        android:textSize="15dp"
+        android:textColor="@color/Color2"
+        android:background="@color/Color1"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="15dp"
+        android:gravity="center"/>
+</LinearLayout>
