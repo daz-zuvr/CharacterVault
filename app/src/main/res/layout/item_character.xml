@@ -40,7 +40,9 @@
         android:id="@+id/iv_borrar"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@android:drawable/ic_menu_delete"
+        android:padding="10dp"
+        android:src="@drawable/rs1"
+        android:foregroundTint="@color/Color1"
         android:contentDescription="Presiona para borrar"
         app:tint="@color/Color1" />
 </LinearLayout>

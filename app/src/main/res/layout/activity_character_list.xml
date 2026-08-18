@@ -8,13 +8,18 @@
     android:paddingVertical="50dp"
     android:padding="16dp">
 
-    <Button
+
+    <TextView
         android:id="@+id/btn_crear_personaje"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/archivo2"
+        android:padding="10dp"
+        android:text="Crear un personaje"
+        android:textSize="15dp"
         android:textColor="@color/Color2"
-        android:text="Crear un personaje" />
+        android:background="@drawable/archivo2"
+        android:layout_marginTop="30dp"
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/tv_empty"

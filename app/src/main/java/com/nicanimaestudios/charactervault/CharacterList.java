@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -19,7 +20,7 @@ public class CharacterList extends LinearLayout {
 
     private RecyclerView rvPersonajes;
     private TextView tvEmpty;
-    private Button btnCrear;
+    private TextView btnCrear;
     private CharacterAdapter adapter;
     private List<CharacterItem> characterList = new ArrayList<>();
     private OnCharacterClickListener listener;
