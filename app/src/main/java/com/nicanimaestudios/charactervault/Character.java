@@ -91,23 +91,41 @@ public class Character extends LinearLayout {
         }
     }
 
-    /**
-     * Establece y carga la información del personaje según su nombre.
-     */
     public void setCharacterName(String name) {
-        if (name != null && !name.trim().isEmpty()) {
-            this.currentCharacterName = name.trim();
-            if (etNombre != null) {
-                etNombre.setText(this.currentCharacterName);
-            }
-            loadData();
+        if (name == null || name.trim().isEmpty() || name.trim().equalsIgnoreCase("Nuevo")) {
+            this.currentCharacterName = "";
+            clearFields();
+            return;
+        }
+
+        this.currentCharacterName = name.trim();
+        if (etNombre != null) {
+            etNombre.setText(this.currentCharacterName);
+        }
+        loadData();
+    }
+
+    public void clearFields() {
+        if (etNombre != null) etNombre.setText("");
+        if (etEdad != null) etEdad.setText("");
+        if (etRaza != null) etRaza.setText("");
+        if (etSexo != null) etSexo.setText("");
+        if (etApodo != null) etApodo.setText("");
+        if (etPoderes != null) etPoderes.setText("");
+        if (etPadre != null) etPadre.setText("");
+        if (etMadre != null) etMadre.setText("");
+        if (etHistoria != null) etHistoria.setText("");
+
+        this.imageUri = null;
+        if (ivPersonaje != null) {
+            ivPersonaje.setImageDrawable(null);
         }
     }
 
-    private File getCharacterDirectory(String name) {
+    private File getCharacterDirectory(String name, boolean createIfMissing) {
         String safeName = name.replaceAll("[^a-zA-Z0-9_-]", "_");
         File baseDir = new File(getContext().getExternalFilesDir(null), "CharacterVault" + File.separator + safeName);
-        if (!baseDir.exists()) {
+        if (createIfMissing && !baseDir.exists()) {
             baseDir.mkdirs();
         }
         return baseDir;
@@ -121,11 +139,15 @@ public class Character extends LinearLayout {
             return;
         }
 
+        if (nameToSave.equalsIgnoreCase("Nuevo")) {
+            Toast.makeText(getContext(), "Ingresa un nombre válido para el personaje", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         this.currentCharacterName = nameToSave;
-        File charDir = getCharacterDirectory(currentCharacterName);
+        File charDir = getCharacterDirectory(currentCharacterName, true);
 
         try {
-            // Guardar datos en JSON
             JSONObject json = new JSONObject();
             json.put("nombre", currentCharacterName);
             json.put("edad", etEdad != null ? etEdad.getText().toString() : "");
@@ -142,7 +164,6 @@ public class Character extends LinearLayout {
             fos.write(json.toString().getBytes());
             fos.close();
 
-            // Copiar imagen a la carpeta del personaje si fue seleccionada
             if (imageUri != null) {
                 File destImage = new File(charDir, "profile.jpg");
                 copyUriToFile(imageUri, destImage);
@@ -157,9 +178,19 @@ public class Character extends LinearLayout {
     }
 
     public void loadData() {
-        if (currentCharacterName.isEmpty()) return;
+        if (currentCharacterName.isEmpty() || currentCharacterName.equalsIgnoreCase("Nuevo")) {
+            clearFields();
+            return;
+        }
 
-        File charDir = getCharacterDirectory(currentCharacterName);
+        File charDir = getCharacterDirectory(currentCharacterName, false);
+
+        if (!charDir.exists()) {
+            clearFields();
+            if (etNombre != null) etNombre.setText(currentCharacterName);
+            return;
+        }
+
         File jsonFile = new File(charDir, "data.json");
 
         if (jsonFile.exists()) {
@@ -184,13 +215,23 @@ public class Character extends LinearLayout {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else {
+            if (etEdad != null) etEdad.setText("");
+            if (etRaza != null) etRaza.setText("");
+            if (etSexo != null) etSexo.setText("");
+            if (etApodo != null) etApodo.setText("");
+            if (etPoderes != null) etPoderes.setText("");
+            if (etPadre != null) etPadre.setText("");
+            if (etMadre != null) etMadre.setText("");
+            if (etHistoria != null) etHistoria.setText("");
         }
 
-        // Cargar imagen guardada localmente
         File imageFile = new File(charDir, "profile.jpg");
         if (imageFile.exists() && ivPersonaje != null) {
             Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
             ivPersonaje.setImageBitmap(bitmap);
+        } else if (ivPersonaje != null) {
+            ivPersonaje.setImageDrawable(null);
         }
     }
 
