@@ -17,7 +17,6 @@ android {
     }
 }
 
-// Configuración requerida para que JitPack publique el AAR
 afterEvaluate {
     publishing {
         publications {
@@ -25,7 +24,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.daz-zuvr'
                 artifactId = 'charactervault'
-                version = '1.1.1'
+                version = '1.1.4'
             }
         }
     }
@@ -34,6 +33,4 @@ afterEvaluate {
 dependencies {
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation libs.activity
-    implementation libs.constraintlayout
 }
