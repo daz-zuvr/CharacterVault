@@ -3,12 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/Color2"
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="50dp"
     android:padding="16dp">
 
     <Button
         android:id="@+id/btn_crear_personaje"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/archivo2"
+        android:textColor="@color/Color2"
         android:text="Crear un personaje" />
 
     <TextView

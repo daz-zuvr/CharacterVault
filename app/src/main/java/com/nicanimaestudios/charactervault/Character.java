@@ -123,7 +123,8 @@ public class Character extends LinearLayout {
     }
 
     private File getCharacterDirectory(String name, boolean createIfMissing) {
-        String safeName = name.replaceAll("[^a-zA-Z0-9_-]", "_");
+        // \p{L} soporta cualquier letra Unicode (tildes, eñes, etc.)
+        String safeName = name.replaceAll("[^\\p{L}0-9 _-]", "_").trim();
         File baseDir = new File(getContext().getExternalFilesDir(null), "CharacterVault" + File.separator + safeName);
         if (createIfMissing && !baseDir.exists()) {
             baseDir.mkdirs();
@@ -144,6 +145,14 @@ public class Character extends LinearLayout {
             return;
         }
 
+        // Si se renombró el personaje, elimina la carpeta vieja
+        if (!currentCharacterName.isEmpty() && !currentCharacterName.equalsIgnoreCase(nameToSave)) {
+            File oldDir = getCharacterDirectory(currentCharacterName, false);
+            if (oldDir.exists()) {
+                deleteRecursive(oldDir);
+            }
+        }
+
         this.currentCharacterName = nameToSave;
         File charDir = getCharacterDirectory(currentCharacterName, true);
 
@@ -161,7 +170,7 @@ public class Character extends LinearLayout {
 
             File jsonFile = new File(charDir, "data.json");
             FileOutputStream fos = new FileOutputStream(jsonFile);
-            fos.write(json.toString().getBytes());
+            fos.write(json.toString().getBytes("UTF-8"));
             fos.close();
 
             if (imageUri != null) {
@@ -246,5 +255,17 @@ public class Character extends LinearLayout {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()) {
+            File[] children = fileOrDirectory.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteRecursive(child);
+                }
+            }
+        }
+        return fileOrDirectory.delete();
     }
 }

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.View
 
     public interface OnItemClickListener {
         void onItemClick(CharacterItem item);
+        void onItemDelete(CharacterItem item);
     }
 
     public CharacterAdapter(List<CharacterItem> characterList, OnItemClickListener listener) {
@@ -46,9 +48,17 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.View
             holder.ivPersonaje.setImageDrawable(null);
         }
 
-        holder.itemView.setOnClickListener(v -> {
+        // Clic para abrir el personaje
+        holder.containerAbrir.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(item);
+            }
+        });
+
+        // Clic para borrar el personaje
+        holder.ivBorrar.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemDelete(item);
             }
         });
     }
@@ -61,11 +71,15 @@ public class CharacterAdapter extends RecyclerView.Adapter<CharacterAdapter.View
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivPersonaje;
         TextView tvNombre;
+        LinearLayout containerAbrir;
+        ImageView ivBorrar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivPersonaje = itemView.findViewById(R.id.iv_item_personaje);
             tvNombre = itemView.findViewById(R.id.tv_item_nombre);
+            containerAbrir = itemView.findViewById(R.id.iv_abrir);
+            ivBorrar = itemView.findViewById(R.id.iv_borrar);
         }
     }
 }

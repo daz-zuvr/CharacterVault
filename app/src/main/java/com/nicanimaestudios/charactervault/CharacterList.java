@@ -89,13 +89,45 @@ public class CharacterList extends LinearLayout {
             if (tvEmpty != null) tvEmpty.setVisibility(View.GONE);
             if (rvPersonajes != null) {
                 rvPersonajes.setVisibility(View.VISIBLE);
-                adapter = new CharacterAdapter(characterList, item -> {
-                    if (listener != null) {
-                        listener.onCharacterClick(item.getName());
+                adapter = new CharacterAdapter(characterList, new CharacterAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(CharacterItem item) {
+                        if (listener != null) {
+                            listener.onCharacterClick(item.getName());
+                        }
+                    }
+
+                    @Override
+                    public void onItemDelete(CharacterItem item) {
+                        deleteCharacterFolder(item.getName());
+                        if (listener != null) {
+                            listener.onDeleteCharacterClick(item.getName());
+                        }
+                        loadCharacters(); // Refresca la lista en pantalla
                     }
                 });
                 rvPersonajes.setAdapter(adapter);
             }
         }
+    }
+
+    private void deleteCharacterFolder(String characterName) {
+        File vaultDir = new File(getContext().getExternalFilesDir(null), "CharacterVault");
+        File characterFolder = new File(vaultDir, characterName);
+        if (characterFolder.exists() && characterFolder.isDirectory()) {
+            deleteRecursive(characterFolder);
+        }
+    }
+
+    private boolean deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory()) {
+            File[] children = fileOrDirectory.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteRecursive(child);
+                }
+            }
+        }
+        return fileOrDirectory.delete();
     }
 }
