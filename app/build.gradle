@@ -24,7 +24,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.daz-zuvr'
                 artifactId = 'charactervault'
-                version = '1.1.4'
+                version = '1.1.5'
             }
         }
     }

@@ -1,7 +1,8 @@
 package com.nicanimaestudios.charactervault;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -11,6 +12,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class Character extends LinearLayout {
 
     private ImageView ivPersonaje;
@@ -18,7 +27,12 @@ public class Character extends LinearLayout {
     private TextView tvGuardar;
 
     private Uri imageUri = null;
-    private static final String PREFS_NAME = "FichaPersonajePrefs";
+    private OnImagePickRequestListener imagePickRequestListener;
+    private String currentCharacterName = "";
+
+    public interface OnImagePickRequestListener {
+        void onImagePickRequested();
+    }
 
     public Character(Context context) {
         super(context);
@@ -51,11 +65,21 @@ public class Character extends LinearLayout {
         etHistoria = findViewById(R.id.et_historia);
         tvGuardar = findViewById(R.id.tv_guardar);
 
+        if (ivPersonaje != null) {
+            ivPersonaje.setOnClickListener(v -> {
+                if (imagePickRequestListener != null) {
+                    imagePickRequestListener.onImagePickRequested();
+                }
+            });
+        }
+
         if (tvGuardar != null) {
             tvGuardar.setOnClickListener(v -> saveData());
         }
+    }
 
-        loadData();
+    public void setOnImagePickRequestListener(OnImagePickRequestListener listener) {
+        this.imagePickRequestListener = listener;
     }
 
     public void setImageUri(Uri uri) {
@@ -67,51 +91,119 @@ public class Character extends LinearLayout {
         }
     }
 
-    public void setOnImageClickListener(OnClickListener listener) {
-        if (ivPersonaje != null) {
-            ivPersonaje.setOnClickListener(listener);
+    /**
+     * Establece y carga la información del personaje según su nombre.
+     */
+    public void setCharacterName(String name) {
+        if (name != null && !name.trim().isEmpty()) {
+            this.currentCharacterName = name.trim();
+            if (etNombre != null) {
+                etNombre.setText(this.currentCharacterName);
+            }
+            loadData();
         }
+    }
+
+    private File getCharacterDirectory(String name) {
+        String safeName = name.replaceAll("[^a-zA-Z0-9_-]", "_");
+        File baseDir = new File(getContext().getExternalFilesDir(null), "CharacterVault" + File.separator + safeName);
+        if (!baseDir.exists()) {
+            baseDir.mkdirs();
+        }
+        return baseDir;
     }
 
     public void saveData() {
-        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
+        String nameToSave = etNombre != null ? etNombre.getText().toString().trim() : "";
 
-        if (etNombre != null) editor.putString("nombre", etNombre.getText().toString());
-        if (etEdad != null) editor.putString("edad", etEdad.getText().toString());
-        if (etRaza != null) editor.putString("raza", etRaza.getText().toString());
-        if (etSexo != null) editor.putString("sexo", etSexo.getText().toString());
-        if (etApodo != null) editor.putString("apodo", etApodo.getText().toString());
-        if (etPoderes != null) editor.putString("poderes", etPoderes.getText().toString());
-        if (etPadre != null) editor.putString("padre", etPadre.getText().toString());
-        if (etMadre != null) editor.putString("madre", etMadre.getText().toString());
-        if (etHistoria != null) editor.putString("historia", etHistoria.getText().toString());
-
-        if (imageUri != null) {
-            editor.putString("imagen_uri", imageUri.toString());
+        if (nameToSave.isEmpty()) {
+            Toast.makeText(getContext(), "Por favor ingresa un nombre", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        editor.apply();
-        Toast.makeText(getContext(), "Datos guardados", Toast.LENGTH_SHORT).show();
+        this.currentCharacterName = nameToSave;
+        File charDir = getCharacterDirectory(currentCharacterName);
+
+        try {
+            // Guardar datos en JSON
+            JSONObject json = new JSONObject();
+            json.put("nombre", currentCharacterName);
+            json.put("edad", etEdad != null ? etEdad.getText().toString() : "");
+            json.put("raza", etRaza != null ? etRaza.getText().toString() : "");
+            json.put("sexo", etSexo != null ? etSexo.getText().toString() : "");
+            json.put("apodo", etApodo != null ? etApodo.getText().toString() : "");
+            json.put("poderes", etPoderes != null ? etPoderes.getText().toString() : "");
+            json.put("padre", etPadre != null ? etPadre.getText().toString() : "");
+            json.put("madre", etMadre != null ? etMadre.getText().toString() : "");
+            json.put("historia", etHistoria != null ? etHistoria.getText().toString() : "");
+
+            File jsonFile = new File(charDir, "data.json");
+            FileOutputStream fos = new FileOutputStream(jsonFile);
+            fos.write(json.toString().getBytes());
+            fos.close();
+
+            // Copiar imagen a la carpeta del personaje si fue seleccionada
+            if (imageUri != null) {
+                File destImage = new File(charDir, "profile.jpg");
+                copyUriToFile(imageUri, destImage);
+            }
+
+            Toast.makeText(getContext(), "Guardado en CharacterVault/" + currentCharacterName, Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error al guardar los datos", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void loadData() {
-        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (currentCharacterName.isEmpty()) return;
 
-        if (etNombre != null) etNombre.setText(prefs.getString("nombre", ""));
-        if (etEdad != null) etEdad.setText(prefs.getString("edad", ""));
-        if (etRaza != null) etRaza.setText(prefs.getString("raza", ""));
-        if (etSexo != null) etSexo.setText(prefs.getString("sexo", ""));
-        if (etApodo != null) etApodo.setText(prefs.getString("apodo", ""));
-        if (etPoderes != null) etPoderes.setText(prefs.getString("poderes", ""));
-        if (etPadre != null) etPadre.setText(prefs.getString("padre", ""));
-        if (etMadre != null) etMadre.setText(prefs.getString("madre", ""));
-        if (etHistoria != null) etHistoria.setText(prefs.getString("historia", ""));
+        File charDir = getCharacterDirectory(currentCharacterName);
+        File jsonFile = new File(charDir, "data.json");
 
-        String savedUriString = prefs.getString("imagen_uri", null);
-        if (savedUriString != null && ivPersonaje != null) {
-            imageUri = Uri.parse(savedUriString);
-            ivPersonaje.setImageURI(imageUri);
+        if (jsonFile.exists()) {
+            try {
+                FileInputStream fis = new FileInputStream(jsonFile);
+                byte[] buffer = new byte[(int) jsonFile.length()];
+                fis.read(buffer);
+                fis.close();
+
+                JSONObject json = new JSONObject(new String(buffer, "UTF-8"));
+
+                if (etNombre != null) etNombre.setText(json.optString("nombre", ""));
+                if (etEdad != null) etEdad.setText(json.optString("edad", ""));
+                if (etRaza != null) etRaza.setText(json.optString("raza", ""));
+                if (etSexo != null) etSexo.setText(json.optString("sexo", ""));
+                if (etApodo != null) etApodo.setText(json.optString("apodo", ""));
+                if (etPoderes != null) etPoderes.setText(json.optString("poderes", ""));
+                if (etPadre != null) etPadre.setText(json.optString("padre", ""));
+                if (etMadre != null) etMadre.setText(json.optString("madre", ""));
+                if (etHistoria != null) etHistoria.setText(json.optString("historia", ""));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Cargar imagen guardada localmente
+        File imageFile = new File(charDir, "profile.jpg");
+        if (imageFile.exists() && ivPersonaje != null) {
+            Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+            ivPersonaje.setImageBitmap(bitmap);
+        }
+    }
+
+    private void copyUriToFile(Uri srcUri, File destFile) {
+        try (InputStream in = getContext().getContentResolver().openInputStream(srcUri);
+             OutputStream out = new FileOutputStream(destFile)) {
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
